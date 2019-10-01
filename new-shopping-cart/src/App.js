@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import 'rbx/index.css';
 import { Button, Container, Title, Column, Notification } from 'rbx';
-import {NestedGrid} from './styling';
+import {ElevateAppBar} from './styling';
 import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
+import Fab from '@material-ui/core/Fab';
 
 
 const Banner = ({ title }) => (
@@ -25,6 +26,7 @@ const useStyles = makeStyles(theme => ({
 
 const App = () => {
   const [data, setData] = useState({});
+  const [cart, setCart] = useState({ isOpen: 'True'});
   const products = Object.values(data);
   const classes = useStyles();
   useEffect(() => {
@@ -38,6 +40,7 @@ const App = () => {
 
   return (
     <Container>
+    <ElevateAppBar/>
     {products.map(product =>
       <Grid key={product.sku}><Paper className={classes.paper}>{
         <img src={"data/products/"+product.sku+"_2.jpg"} height="250" width="250"></img>}
