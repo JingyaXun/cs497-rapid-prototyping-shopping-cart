@@ -13,6 +13,12 @@ import MailIcon from '@material-ui/icons/Mail';
 import ShoppingCart from "@bit/mui-org.material-ui-icons.shopping-cart";
 import { ThemeProvider } from '@material-ui/styles';
 import pink from '@material-ui/core/colors/grey';
+import Grid from '@material-ui/core/Grid';
+import Typography from '@material-ui/core/Typography';
+import Paper from '@material-ui/core/Paper';
+import ButtonBase from '@material-ui/core/ButtonBase';
+
+
 
 const theme = createMuiTheme({
   palette: {
@@ -33,6 +39,71 @@ const useStyles = makeStyles({
 function onlyUnique(value, index, self) {
     return self.indexOf(value) === index;
 }
+
+const complexGridStyles = makeStyles(theme => ({
+  root: {
+    flexGrow: 1,
+  },
+  paper: {
+    padding: theme.spacing(2),
+    margin: 'auto',
+    maxWidth: 500,
+  },
+  image: {
+    width: 128,
+    height: 128,
+  },
+  img: {
+    margin: 'auto',
+    display: 'block',
+    maxWidth: '100%',
+    maxHeight: '100%',
+  },
+}));
+
+function ComplexGrid({product, productStates}) {
+  const classes = complexGridStyles();
+
+  return (
+    <div className={classes.root}>
+      <Paper className={classes.paper}>
+        <Grid container spacing={2}>
+          <Grid item>
+            <ButtonBase className={classes.image}>
+              {<img src={"data/products/"+product.sku+"_2.jpg"} height="100" width="100"></img>}
+            </ButtonBase>
+          </Grid>
+          <Grid item xs={12} sm container>
+            <Grid item xs container direction="column" spacing={2}>
+              <Grid item xs>
+                <Typography gutterBottom variant="subtitle1">
+                  {product.title}
+                </Typography>
+                <Typography variant="body2" gutterBottom>
+                  {"S" + " | " + product.style}
+                </Typography>
+                <Typography variant="body2" color="textSecondary">
+                  {"quantity: " + productStates.selected.reduce((acc, val) => acc.set(val, 1 + (acc.get(val) || 0)), new Map()).get(product)}
+                </Typography>
+              </Grid>
+              <Grid item>
+                <Typography variant="body2" style={{ cursor: 'pointer' }}>
+                  Remove
+                </Typography>
+              </Grid>
+            </Grid>
+            <Grid item>
+              <Typography variant="subtitle1">
+                {product.currencyFormat + " " + productStates.selected.reduce((acc, val) => acc.set(val, 1 + (acc.get(val) || 0)), new Map()).get(product)*parseFloat(product.price, 10)}
+              </Typography>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Paper>
+    </div>
+  );
+}
+
 
 export function CartWindow({products, productStates}) {
   const classes = useStyles();
@@ -57,9 +128,7 @@ export function CartWindow({products, productStates}) {
     >
       <List>
         {productStates.selected.filter( onlyUnique ).map(product =>
-          <Container key={product.sku}>
-            {<img src={"data/products/"+product.sku+"_2.jpg"} height="100" width="100"></img>}
-          </Container>
+          <ComplexGrid key={product.sku} product={product} productStates={productStates}/>
         )}
       </List>
       <Divider />
