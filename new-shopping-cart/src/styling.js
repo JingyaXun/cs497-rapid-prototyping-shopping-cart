@@ -112,9 +112,8 @@ export function ElevateAppBar({ props, products, state }) {
                   onClick={function(event){handleMenu(event);}}
                   color="inherit"
                 >
-                {console.log(state.selected)}
                 </IconButton>
-                <CartWindow/>
+                <CartWindow products={products} productStates={state}/>
               </div>
             )}
           </Toolbar>

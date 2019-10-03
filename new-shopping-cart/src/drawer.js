@@ -1,5 +1,6 @@
 import React from 'react';
 import { createMuiTheme, makeStyles } from '@material-ui/core/styles';
+import { Container } from 'rbx';
 import Drawer from '@material-ui/core/Drawer';
 import Button from '@material-ui/core/Button';
 import List from '@material-ui/core/List';
@@ -21,14 +22,19 @@ const theme = createMuiTheme({
 
 const useStyles = makeStyles({
   list: {
-    width: 250,
+    width: 350,
   },
   fullList: {
     width: 'auto',
   },
 });
 
-export function CartWindow() {
+//https://stackoverflow.com/questions/1960473/get-all-unique-values-in-a-javascript-array-remove-duplicates
+function onlyUnique(value, index, self) {
+    return self.indexOf(value) === index;
+}
+
+export function CartWindow({products, productStates}) {
   const classes = useStyles();
   const [state, setState] = React.useState({
     right: false,
@@ -42,7 +48,7 @@ export function CartWindow() {
     setState({ ...state, [side]: open });
   };
 
-  const sideList = side => (
+  const sideList = (side,products, productStates) => (
     <div
       className={classes.list}
       role="presentation"
@@ -50,11 +56,11 @@ export function CartWindow() {
       onKeyDown={toggleDrawer(side, false)}
     >
       <List>
-        {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-          <ListItem button key={text}>
-            <ListItemText primary={text} />
-          </ListItem>
-        ))}
+        {productStates.selected.filter( onlyUnique ).map(product =>
+          <Container key={product.sku}>
+            {<img src={"data/products/"+product.sku+"_2.jpg"} height="100" width="100"></img>}
+          </Container>
+        )}
       </List>
       <Divider />
       <List>
@@ -99,7 +105,7 @@ export function CartWindow() {
         <Button size="large" color="primary" onClick={toggleDrawer('right', true)}><ShoppingCart /></Button>
       </ThemeProvider>
       <Drawer anchor="right" open={state.right} onClose={toggleDrawer('right', false)}>
-        {sideList('right')}
+        {sideList('right', products, productStates)}
       </Drawer>
     </div>
   );
