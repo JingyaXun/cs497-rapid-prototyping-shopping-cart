@@ -78,7 +78,7 @@ const LoadCart = ({state}) => {
   //const s => state.reduce((acc, val) => acc.set(val, 1 + (acc.get(val) || 0)), new Map());
 };
 
-export function ElevateAppBar({ props, products, state }) {
+export function ElevateAppBar({ props, products, productState, cartState, setCartState }) {
   const classes = useStyles();
   const [auth, setAuth] = React.useState(true);
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -113,7 +113,7 @@ export function ElevateAppBar({ props, products, state }) {
                   color="inherit"
                 >
                 </IconButton>
-                <CartWindow products={products} productStates={state}/>
+                <CartWindow products={products} productStates={productState} cartState={cartState} setCartState={setCartState}/>
               </div>
             )}
           </Toolbar>
