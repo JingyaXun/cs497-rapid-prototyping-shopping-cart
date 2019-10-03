@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -18,6 +18,8 @@ import FormGroup from '@material-ui/core/FormGroup';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 import ShoppingCart from "@bit/mui-org.material-ui-icons.shopping-cart";
+import Grid from '@material-ui/core/Grid';
+import {CartWindow} from './drawer';
 
 function ElevationScroll(props) {
   const { children, window } = props;
@@ -56,7 +58,27 @@ ElevationScroll.propTypes = {
   window: PropTypes.func,
 };
 
-export function ElevateAppBar(props) {
+export const AddToCart = ({ products }) => (
+  <Container>
+    {products.filter(product => product.status === 1).map(
+      product => <Grid>
+        <img src={"data/products/"+product.sku+"_2.jpg"} height="50" width="50"></img>}
+        {<br/>}
+        {product.size} {" | "} {product.style}
+        {<br/>}
+        {product.quantity}
+      </Grid>
+    )}
+  </Container>
+);
+
+const LoadCart = ({state}) => {
+  console.log("loading shopping cart");
+  console.log(state)
+  //const s => state.reduce((acc, val) => acc.set(val, 1 + (acc.get(val) || 0)), new Map());
+};
+
+export function ElevateAppBar({ props, products, state }) {
   const classes = useStyles();
   const [auth, setAuth] = React.useState(true);
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -73,6 +95,7 @@ export function ElevateAppBar(props) {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
   return (
     <React.Fragment>
       <CssBaseline />
@@ -83,32 +106,15 @@ export function ElevateAppBar(props) {
             {auth && (
               <div>
                 <IconButton
-                  aria-label="account of current user"
+                  aria-label="shopping cart"
                   aria-controls="menu-appbar"
                   aria-haspopup="true"
-                  onClick={handleMenu}
+                  onClick={function(event){handleMenu(event);}}
                   color="inherit"
                 >
-                  <ShoppingCart />
+                {console.log(state.selected)}
                 </IconButton>
-                <Menu
-                  id="menu-appbar"
-                  anchorEl={anchorEl}
-                  anchorOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                  }}
-                  keepMounted
-                  transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                  }}
-                  open={open}
-                  onClose={handleClose}
-                >
-                  <MenuItem onClick={handleClose}>Profile</MenuItem>
-                  <MenuItem onClick={handleClose}>My account</MenuItem>
-                </Menu>
+                <CartWindow/>
               </div>
             )}
           </Toolbar>
