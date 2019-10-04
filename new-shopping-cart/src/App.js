@@ -5,7 +5,21 @@ import {ElevateAppBar, AddToCart} from './styling';
 import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
+import firebase from 'firebase/app';
+import 'firebase/database';
 
+const firebaseConfig = {
+  apiKey: "AIzaSyD3nnHJp02-ZeipmqAD60PjVr1vcIcJpfY",
+  authDomain: "react-shopping-cart-7d1d3.firebaseapp.com",
+  databaseURL: "https://react-shopping-cart-7d1d3.firebaseio.com/",
+  projectId: "react-shopping-cart-7d1d3",
+  storageBucket: "react-shopping-cart-7d1d3.appspot.com",
+  messagingSenderId: "476849977207",
+  appId: "1:476849977207:web:b7eff48e3e3eb3195ed372"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database().ref();
 
 const useSelection = () => {
   const [selected, setSelected] = useState([]);
@@ -65,6 +79,20 @@ const ProductList = ({ products }) => {
   );
 };
 
+// const saveProduct = (product, size, quantity) => {
+//   db.child(product.sku).child(size).update({meets})
+//     .catch(error => alert(error));
+// };
+//
+// const getProductQuantity = (product, size) => (
+//   db.child(product.sku).child(size)
+// );
+//
+// const inventoryConflict = (product, size) => (
+//   getProductQuantity(product, size) === 0
+// );
+
+
 const useStyles = makeStyles(theme => ({
   root: {
     flexGrow: 1,
@@ -88,8 +116,17 @@ const App = () => {
     const fetchProducts = async () => {
       const response = await fetch('./data/products.json');
       const json = await response.json();
-      setData(json);
+      const handleData = snap=>{
+        if(snap.val()) {
+          let combo = {};
+          Object.keys(json).map(item => combo[item] = Object.assign(json[item], snap.val()[item]));
+          console.log(combo)
+          setData(combo);
+        }
     };
+    db.on('value', handleData, error => alert(error));
+    return () => { db.off('value', handleData); };
+    }
     fetchProducts();
   }, []);
 
