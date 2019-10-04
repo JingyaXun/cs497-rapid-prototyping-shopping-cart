@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import 'rbx/index.css';
-import { Button, Container} from 'rbx';
+import { Button, Container, Message, Title} from 'rbx';
 import {ElevateAppBar, AddToCart} from './styling';
 import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
@@ -72,7 +72,7 @@ const Text = (selected, product, productList) => {
   if (allOutOfStock(product)){
     return "Out of Stock"
   }
-  return selected ? productList.reduce((acc, val) => acc.set(val, 1 + (acc.get(val) || 0)), new Map()).get(product) + " added" : "Add to cart"
+  return "Add to cart"
 }
 
 const Product = ({allProducts, product, productState, sizeState, cartState, setCartState }) => {
@@ -126,8 +126,10 @@ const App = () => {
   const products = Object.values(data);
   // shopping cart state
   const [cartState, setCartState] = useState({right: false,});
-  // size useState
+  // size state
   const [selectedSize, setSize] = useState({size:"S",});
+  // user state
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -146,9 +148,12 @@ const App = () => {
     fetchProducts();
   }, []);
 
+  useEffect(() => {
+    firebase.auth().onAuthStateChanged(setUser);
+  }, []);
   return (
     <Container maxwidth="1000">
-    <ElevateAppBar product={products} productState={ {selected,toggle} } cartState={cartState} setCartState={setCartState}/>
+    <ElevateAppBar product={products} productState={ {selected,toggle} } cartState={cartState} setCartState={setCartState} user={user}/>
     <Grid container spacing={3}>
     {products.map(product =>
       <Grid item xs={3} key={product.sku}>
