@@ -23,31 +23,48 @@ const db = firebase.database().ref();
 
 const useSelection = () => {
   const [selected, setSelected] = useState([]);
-  const toggle = (x,isRemove) => {
+  const toggle = (x, selectedSize, isRemove) => {
     if (isRemove){
       selected.splice(selected.indexOf(x),1)
       setSelected(selected)
     }
     else{
-      setSelected([x].concat(selected))
+      let item = {};
+      item["sku"]=x.sku;
+      item["title"]=x.title;
+      item["style"]=x.style;
+      item["price"]=x.price;
+      item["currencyFormat"]=x.currencyFormat;
+      item["size"]=selectedSize.size;
+      setSelected([item].concat(selected))
+      //setSelected([item].concat(selected))
     }
+    console.log(selected)
   };
   return [ selected, toggle ];
 };
 
-const Update = ({product, state}) => {
-  state.toggle(product, false);
-  console.log(`products in the list: ${state.selected}`);
-  // console.log(state.selected);
-  // console.log({product})
-};
+const allOutOfStock = (product) =>{
+  if (outOfStock(product, 'S') && outOfStock(product, 'M') && outOfStock(product, 'L') && outOfStock(product, 'XL')){
+    return true
+  }
+  return false
+}
+
+const outOfStock = (product, size) =>{
+  return product[size] === 0
+}
 
 const Text = (selected, product, productList) => {
+  if (allOutOfStock(product)){
+    return "Out of Stock"
+  }
   return selected ? productList.reduce((acc, val) => acc.set(val, 1 + (acc.get(val) || 0)), new Map()).get(product) + " added" : "Add to cart"
 }
 
-const Product = ({ product, productState, cartState, setCartState }) => {
+const Product = ({allProducts, product, productState, sizeState, cartState, setCartState }) => {
   const classes = useStyles();
+  var currSize = [];
   return (
   <Paper className={classes.paper}>
     {<img src={"data/products/"+product.sku+"_1.jpg"} height="250" width="250"></img>}
@@ -57,12 +74,12 @@ const Product = ({ product, productState, cartState, setCartState }) => {
     {product.currencyFormat}
     {product.price}
     {<br/>}
-    <Button variant="contained" className={classes.button}>S</Button>
-    <Button variant="contained" className={classes.button}>M</Button>
-    <Button variant="contained" className={classes.button}>L</Button>
-    <Button variant="contained" className={classes.button}>XL</Button>
+    <Button variant="contained" className={classes.button} disabled={outOfStock(product, 'S')} onClick={() =>{sizeState.setSize({ ...sizeState, ['size']: 'S' })}}>S</Button>
+    <Button variant="contained" className={classes.button} disabled={outOfStock(product, 'M')} onClick={() =>{sizeState.setSize({ ...sizeState, ['size']: 'M' })}}>M</Button>
+    <Button variant="contained" className={classes.button} disabled={outOfStock(product, 'L')} onClick={() =>{sizeState.setSize({ ...sizeState, ['size']: 'L' })}}>L</Button>
+    <Button variant="contained" className={classes.button} disabled={outOfStock(product, 'XL')} onClick={() =>{sizeState.setSize({ ...sizeState, ['size']: 'XL' })}}>XL</Button>
     {<br/>}
-    <Button onClick={ () => {productState.toggle(product, false); setCartState({ ...cartState, ['right']: true });}}>
+    <Button disabled={allOutOfStock(product)} onClick={ () => {productState.toggle(product, sizeState.selectedSize, false); setCartState({ ...cartState, ['right']: true });}}>
         { Text(productState.selected.includes(product), product, productState.selected) }
     </Button>
   </Paper>
@@ -78,20 +95,6 @@ const ProductList = ({ products }) => {
     </React.Fragment>
   );
 };
-
-// const saveProduct = (product, size, quantity) => {
-//   db.child(product.sku).child(size).update({meets})
-//     .catch(error => alert(error));
-// };
-//
-// const getProductQuantity = (product, size) => (
-//   db.child(product.sku).child(size)
-// );
-//
-// const inventoryConflict = (product, size) => (
-//   getProductQuantity(product, size) === 0
-// );
-
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -109,8 +112,9 @@ const App = () => {
   const [selected, toggle] = useSelection();
   const products = Object.values(data);
   // shopping cart state
-  //const [cartState, toggleDrawer] = useSelectionCart();
   const [cartState, setCartState] = useState({right: false,});
+  // size useState
+  const [selectedSize, setSize] = useState({size:"S",});
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -120,7 +124,6 @@ const App = () => {
         if(snap.val()) {
           let combo = {};
           Object.keys(json).map(item => combo[item] = Object.assign(json[item], snap.val()[item]));
-          console.log(combo)
           setData(combo);
         }
     };
@@ -137,7 +140,7 @@ const App = () => {
     {products.map(product =>
       <Grid item xs={3} key={product.sku}>
         <Container>
-          <Product product={product} productState={ {selected,toggle} } cartState={cartState} setCartState={setCartState}/>
+          <Product allProducts={products} product={product} productState={{selected,toggle}} sizeState={{selectedSize,setSize}} cartState={cartState} setCartState={setCartState}/>
         </Container>
       </Grid>)}
     </Grid>
