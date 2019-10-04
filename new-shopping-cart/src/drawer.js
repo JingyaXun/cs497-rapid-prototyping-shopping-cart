@@ -8,7 +8,7 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ShoppingCart from "@bit/mui-org.material-ui-icons.shopping-cart";
 import { ThemeProvider } from '@material-ui/styles';
-import pink from '@material-ui/core/colors/grey';
+import grey from '@material-ui/core/colors/grey';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
@@ -18,7 +18,7 @@ import ButtonBase from '@material-ui/core/ButtonBase';
 
 const theme = createMuiTheme({
   palette: {
-    primary: pink,
+    primary: grey,
   },
 });
 
@@ -62,6 +62,7 @@ function ComplexGrid({product, productStates}) {
       <Paper className={classes.paper}>
         <Grid container spacing={2}>
           <Grid item>
+            {console.log(product)}
             <ButtonBase className={classes.image}>
               {<img src={"data/products/"+product.sku+"_2.jpg"} height="100" width="100"></img>}
             </ButtonBase>
@@ -73,14 +74,14 @@ function ComplexGrid({product, productStates}) {
                   {product.title}
                 </Typography>
                 <Typography variant="body2" gutterBottom>
-                  {"S" + " | " + product.style}
+                  {product.size + " | " + product.style}
                 </Typography>
                 <Typography variant="body2" color="textSecondary">
-                  {"quantity: " + productStates.selected.reduce((acc, val) => acc.set(val, 1 + (acc.get(val) || 0)), new Map()).get(product)}
+                  {"quantity: " + product.quantity}
                 </Typography>
               </Grid>
               <Grid item>
-                <Button onClick={ () => productStates.toggle(product,true) }>
+                <Button onClick={ () => productStates.toggle(product, product.size, true) }>
                   Remove
                 </Button>
               </Grid>
@@ -100,10 +101,6 @@ function ComplexGrid({product, productStates}) {
 
 export function CartWindow({products, productStates, cartState, setCartState}) {
   const classes = useStyles();
-  // const [state, setState] = React.useState({
-  //   right: false,
-  // });
-  //
   const toggleDrawer = (side, open) => event => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
       return;
@@ -120,8 +117,8 @@ export function CartWindow({products, productStates, cartState, setCartState}) {
       //onKeyDown={toggleDrawer(side, false)}
     >
       <List>
-        {productStates.selected.filter( onlyUnique ).map(product =>
-          <ComplexGrid key={product.sku} product={product} productStates={productStates}/>
+        {productStates.selected.map(product =>
+          <ComplexGrid key={product} product={product} productStates={productStates}/>
         )}
       </List>
       <Divider />

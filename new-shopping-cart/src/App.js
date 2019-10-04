@@ -25,21 +25,34 @@ const useSelection = () => {
   const [selected, setSelected] = useState([]);
   const toggle = (x, selectedSize, isRemove) => {
     if (isRemove){
-      selected.splice(selected.indexOf(x),1)
-      setSelected(selected)
+      let newEntry = selected;
+      const ind = newEntry.findIndex(item=>item.sku === x.sku && item.size===selectedSize);
+      if (ind > -1) {
+        newEntry[ind].quantity -= 1;
+        if (newEntry[ind].quantity === 0) {
+          newEntry.splice(ind,1);
+        }
+      }
+      setSelected(newEntry.slice(0))
     }
     else{
-      let item = {};
-      item["sku"]=x.sku;
-      item["title"]=x.title;
-      item["style"]=x.style;
-      item["price"]=x.price;
-      item["currencyFormat"]=x.currencyFormat;
-      item["size"]=selectedSize.size;
-      setSelected([item].concat(selected))
-      //setSelected([item].concat(selected))
+      let newEntry = selected;
+      const ind = newEntry.findIndex(item=>item.sku === x.sku && item.size===selectedSize.size);
+      if (ind > -1) {
+        newEntry[ind].quantity+=1;
+      } else {
+        newEntry.push({
+          title:x.title,
+          style:x.style,
+          sku:x.sku,
+          currencyFormat:x.currencyFormat,
+          price:x.price,
+          quantity: 1,
+          size:selectedSize.size,
+        })
+      }
+      setSelected(newEntry);
     }
-    console.log(selected)
   };
   return [ selected, toggle ];
 };
